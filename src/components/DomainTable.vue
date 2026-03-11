@@ -29,6 +29,7 @@ const isSelected = (domain: DomainRecord) =>
         </tr>
       </thead>
       <tbody>
+        <!-- key: domain (FQDN) assumed unique in this dataset; no id in model -->
         <tr
           v-for="domain in domains"
           :key="domain.domain"
@@ -86,8 +87,6 @@ th {
   font-weight: 500;
   color: #6b7280;
   border-bottom: 1px solid #e5e7eb;
-  position: sticky;
-  top: 0;
 }
 
 tbody tr:last-child td {

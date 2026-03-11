@@ -1,4 +1,4 @@
-## Domain Records Explorer
+# Domain Records Explorer
 
 Internal tool for support engineers to search, filter, and inspect domain records. Built with Vue 3, Composition API, `<script setup>`, and Vite.
 
@@ -67,6 +67,8 @@ npm test
 - **Statuses**: Only `active`, `clientHold`, and `pendingTransfer` are considered, matching the exercise description.
 - **Dates**: All timestamps are ISO 8601 strings. If a date is missing or invalid, the UI displays “Unknown” rather than failing.
 - **Incomplete data**: Some records may have missing `registrar`, `nameservers`, or date fields; these are expected and handled explicitly in the UI.
+- **List keys**: The data model has no `id` field. The UI uses `domain` (the FQDN) as the list key in the table. We assume domain names are unique within the scope of this tool; in a real system (e.g. audit logs or multi-registrar views) a stable record ID would be required.
+- **Expiry visibility**: The app does not visually flag expired or expiring-soon domains in the list or details. Mock data may include domains with `expires_at` in the past (e.g. for testing); these are shown like any other record.
 - **Authentication & authorization**: Omitted for this exercise; in reality, this tool would sit behind existing internal auth.
 
 ---
@@ -75,6 +77,7 @@ npm test
 
 - **Filtering and pagination location**: The mock `fetchDomains` function applies filters and pagination in one place (simulating a real backend), but uses an in-memory JSON dataset for simplicity. This keeps the frontend focused on a clean API boundary while still being easy to run and test locally.
 - **Side panel vs modal / separate page**: A side panel allows support engineers to maintain context while browsing the table and switching between domains with minimal friction. A modal would cover too much of the table; a separate page would add extra navigation steps.
+- **Input debounce**: Filter changes are debounced in `useDomainRecords` so that typing in the domain/registrar fields does not fire a full reload on every keystroke. In a production setting this delay would be tuned (or complemented with server-side protections) based on real API performance.
 - **Minimal testing surface**: Tests are focused on the core data composable (`useDomainRecords`) and the main table component (`DomainTable`) as these are the most critical pieces for correctness. In a production system, we would add more integration and E2E coverage.
 - **Styling**: Plain CSS is used with a small number of utility classes tailored to this view, rather than a full design system, to keep the exercise concise.
 
@@ -156,7 +159,8 @@ The current frontend’s `fetchDomains` mock function is intentionally shaped so
 
 ### Future Improvements
 
-- **Server-side pagination and filtering**: Wire up the UI to a real paginated API and expose pagination controls (page size, next/previous).
+- **Real backend**: Replace the mock API with a real HTTP client for the proposed `/api/domains` endpoint. The UI already has Previous/Next pagination and filters; optionally add a page-size selector.
+- **Expired / expiring domains**: Visually flag domains that are already expired or expiring soon (e.g. badge or row styling using `expires_at`), since these are common support investigation cases.
 - **Sorting**: Allow sorting by domain name, registrar, status, created date, or expiry date via clickable column headers.
 - **URL state**: Persist filters and selection to query parameters so that views can be shared and reloaded consistently.
 - **Accessibility**: Further refine focus handling and keyboard interactions for the table and details panel.

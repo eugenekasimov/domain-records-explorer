@@ -22,9 +22,14 @@ export async function fetchDomains(
   // Simulate network latency
   await new Promise((resolve) => setTimeout(resolve, 250));
 
-  // Simulate an occasional API failure (e.g. 15% of the time)
-  if (Math.random() < 0.15) {
-    throw new Error("Simulated API error");
+  const simulateErrorMode = import.meta.env.VITE_SIMULATE_API_ERROR;
+
+  if (simulateErrorMode === "always") {
+    throw new Error("Simulated API error (VITE_SIMULATE_API_ERROR=always)");
+  }
+
+  if (simulateErrorMode === "random" && Math.random() < 0.15) {
+    throw new Error("Simulated API error (VITE_SIMULATE_API_ERROR=random)");
   }
 
   const { page = 1, pageSize = 10, domain, registrar, status } = filters;

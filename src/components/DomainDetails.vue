@@ -25,6 +25,13 @@ const emit = defineEmits<{
         <p class="details-label">Domain</p>
         <p class="details-domain">{{ domain.domain }}</p>
       </div>
+      <button
+        type="button"
+        class="details-close"
+        @click="emit('close')"
+      >
+        Clear selection
+      </button>
     </header>
 
     <section class="details-section">

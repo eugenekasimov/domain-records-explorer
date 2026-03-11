@@ -10,6 +10,7 @@ export function useDomainRecords(initialFilters: DomainFilterParams = {}) {
   const page = ref(1);
   const pageSize = ref(10);
   const total = ref(0);
+  let filterDebounceHandle: ReturnType<typeof setTimeout> | null = null;
 
   const load = async () => {
     isLoading.value = true;
@@ -36,7 +37,12 @@ export function useDomainRecords(initialFilters: DomainFilterParams = {}) {
     filters,
     () => {
       page.value = 1;
-      void load();
+      if (filterDebounceHandle) {
+        clearTimeout(filterDebounceHandle);
+      }
+      filterDebounceHandle = setTimeout(() => {
+        void load();
+      }, 400);
     },
     { deep: true },
   );
@@ -60,9 +66,8 @@ export function useDomainRecords(initialFilters: DomainFilterParams = {}) {
   };
 
   const resetFilters = () => {
+    // Let the filters watcher own page reset + reload to avoid double loads
     filters.value = {};
-    page.value = 1;
-    void load();
   };
 
   return {

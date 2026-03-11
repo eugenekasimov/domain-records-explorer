@@ -19,6 +19,7 @@ const emit = defineEmits<{
   'update:domain': [value: string]
   'update:registrar': [value: string]
   'update:status': [value: DomainStatus | '']
+  reset: []
 }>()
 
 const domainModel = computed({
@@ -37,9 +38,8 @@ const onStatusChange = (event: Event) => {
 }
 
 const onResetClick = () => {
-  emit('update:domain', '')
-  emit('update:registrar', '')
-  emit('update:status', '')
+  // Emit reset only; parent clears filters in one shot (resetFilters()), so the watcher runs once and props flow back to clear inputs.
+  emit('reset')
 }
 </script>
 

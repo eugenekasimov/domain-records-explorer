@@ -15,7 +15,6 @@ const {
   page,
   pageSize,
   total,
-  setPage,
   goToPreviousPage,
   goToNextPage,
   resetFilters,
@@ -43,17 +42,9 @@ const handleStatusFilterChange = (status: DomainStatus | "") => {
   filters.value = { ...filters.value, status };
 };
 
-const goToPage = (targetPage: number) => {
-  if (targetPage < 1 || targetPage > totalPages.value) return;
-  setPage(targetPage);
-};
-
-const goPrevPage = () => {
-  goToPreviousPage();
-};
-
-const goNextPage = () => {
-  goToNextPage();
+const handleReset = () => {
+  clearSelection();
+  resetFilters();
 };
 
 onMounted(() => {
@@ -96,12 +87,7 @@ watch(
             v-model:registrar="filters.registrar"
             :status="filters.status ?? ''"
             @update:status="handleStatusFilterChange"
-            @reset="
-              () => {
-                clearSelection();
-                resetFilters();
-              }
-            "
+            @reset="handleReset"
           />
         </div>
       </section>
@@ -154,7 +140,7 @@ watch(
               type="button"
               class="pagination-button"
               :disabled="page === 1"
-              @click="goPrevPage"
+              @click="goToPreviousPage"
             >
               Previous
             </button>
@@ -165,7 +151,7 @@ watch(
               type="button"
               class="pagination-button"
               :disabled="page === totalPages"
-              @click="goNextPage"
+              @click="goToNextPage"
             >
               Next
             </button>
@@ -206,36 +192,13 @@ watch(
 .app-title {
   margin: 0;
   font-size: 1.8rem;
-  font-weight: 650;
+  font-weight: 600;
 }
 
 .app-subtitle {
   margin: 0.25rem 0 0;
   font-size: 0.95rem;
   color: #4b5563;
-}
-
-.reload-button {
-  border-radius: 999px;
-  border: 1px solid #6362e6;
-  padding: 0.5rem 1.4rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  font-family: inherit;
-  background: #6362e6;
-  color: #ffffff;
-  cursor: pointer;
-  transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-
-.reload-button:hover {
-  background-color: #4e4cd1;
-  border-color: #4e4cd1;
-  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.25);
 }
 
 .app-main {
