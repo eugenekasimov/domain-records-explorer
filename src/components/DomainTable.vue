@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { DomainRecord } from "../types/domain";
+import StatusBadge from "./StatusBadge.vue";
+import { formatDate } from "../utils/format";
 
 const props = defineProps<{
   domains: DomainRecord[];
@@ -9,17 +11,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   select: [domain: DomainRecord];
 }>();
-
-const formatDate = (value: string | null) => {
-  if (!value) return "Unknown";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Unknown";
-  return date.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-};
 
 const isSelected = (domain: DomainRecord) =>
   props.selectedDomain && props.selectedDomain.domain === domain.domain;
@@ -44,7 +35,6 @@ const isSelected = (domain: DomainRecord) =>
           :class="['row', { 'row-selected': isSelected(domain) }]"
           :tabindex="0"
           @click="emit('select', domain)"
-          @focus="emit('select', domain)"
           @keydown.enter.prevent="emit('select', domain)"
           @keydown.space.prevent="emit('select', domain)"
         >
@@ -57,16 +47,7 @@ const isSelected = (domain: DomainRecord) =>
             }}</span>
           </td>
           <td class="cell">
-            <span :class="['status-badge', `status-${domain.status}`]">
-              <span class="status-dot" />
-              <span class="status-text">
-                <span v-if="domain.status === 'active'">Active</span>
-                <span v-else-if="domain.status === 'clientHold'"
-                  >Client hold</span
-                >
-                <span v-else>Pending transfer</span>
-              </span>
-            </span>
+            <StatusBadge :status="domain.status" />
           </td>
           <td class="cell">
             <span class="muted">{{ formatDate(domain.created_at) }}</span>
@@ -137,7 +118,7 @@ tbody tr:last-child td {
 
 .row-selected {
   background-color: #e0e7ff;
-  box-shadow: inset 2px 0 0 #6362e6;
+  box-shadow: inset 4px 0 0 #6362e6;
 }
 
 .cell {
@@ -159,50 +140,4 @@ tbody tr:last-child td {
   color: #6b7280;
 }
 
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  border-radius: 999px;
-  padding: 0.1rem 0.6rem 0.15rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.status-dot {
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 999px;
-}
-
-.status-text {
-  text-transform: capitalize;
-}
-
-.status-active {
-  background-color: #ecfdf3;
-  color: #166534;
-}
-
-.status-active .status-dot {
-  background-color: #16a34a;
-}
-
-.status-clientHold {
-  background-color: #fffbeb;
-  color: #92400e;
-}
-
-.status-clientHold .status-dot {
-  background-color: #eab308;
-}
-
-.status-pendingTransfer {
-  background-color: #eff6ff;
-  color: #1d4ed8;
-}
-
-.status-pendingTransfer .status-dot {
-  background-color: #3b82f6;
-}
 </style>

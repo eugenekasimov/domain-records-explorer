@@ -1,32 +1,23 @@
 <script setup lang="ts">
-import type { DomainRecord } from '../types/domain'
+import type { DomainRecord } from "../types/domain";
+import StatusBadge from "./StatusBadge.vue";
+import { formatDateTime } from "../utils/format";
 
 const props = defineProps<{
-  domain: DomainRecord | null
-}>()
+  domain: DomainRecord | null;
+}>();
 
 const emit = defineEmits<{
-  close: []
-}>()
-
-const formatDateTime = (value: string | null) => {
-  if (!value) return 'Unknown'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return 'Unknown'
-  return date.toLocaleString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
+  close: [];
+}>();
 </script>
 
 <template>
   <div v-if="!domain" class="details-empty">
-    <p class="details-empty-title">No domain selected</p>
-    <p class="details-empty-text">Select a row to inspect full domain details.</p>
+        <p class="details-empty-title">No domain selected</p>
+        <p class="details-empty-text">
+          Select a row to inspect full domain details.
+        </p>
   </div>
   <div v-else class="details">
     <header class="details-header">
@@ -34,9 +25,6 @@ const formatDateTime = (value: string | null) => {
         <p class="details-label">Domain</p>
         <p class="details-domain">{{ domain.domain }}</p>
       </div>
-      <button type="button" class="details-close" @click="emit('close')">
-        Clear
-      </button>
     </header>
 
     <section class="details-section">
@@ -44,17 +32,12 @@ const formatDateTime = (value: string | null) => {
       <dl class="details-grid">
         <div class="details-field">
           <dt>Registrar</dt>
-          <dd>{{ domain.registrar || 'Unknown registrar' }}</dd>
+          <dd>{{ domain.registrar || "Unknown registrar" }}</dd>
         </div>
         <div class="details-field">
           <dt>Status</dt>
           <dd>
-            <span :class="['status-badge', `status-${domain.status}`]">
-              <span class="status-dot" />
-              <span v-if="domain.status === 'active'">Active</span>
-              <span v-else-if="domain.status === 'clientHold'">Client hold</span>
-              <span v-else>Pending transfer</span>
-            </span>
+            <StatusBadge :status="domain.status" />
           </dd>
         </div>
         <div class="details-field">
@@ -74,7 +57,10 @@ const formatDateTime = (value: string | null) => {
 
     <section class="details-section">
       <h3 class="details-section-title">Nameservers</h3>
-      <p v-if="!domain.nameservers || domain.nameservers.length === 0" class="details-empty-text">
+      <p
+        v-if="!domain.nameservers || domain.nameservers.length === 0"
+        class="details-empty-text"
+      >
         No nameservers configured or data unavailable.
       </p>
       <ul v-else class="nameservers">
@@ -183,50 +169,6 @@ const formatDateTime = (value: string | null) => {
   margin: 0;
   font-size: 0.9rem;
 }
-
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  border-radius: 999px;
-  padding: 0.1rem 0.6rem 0.15rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.status-dot {
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 999px;
-}
-
-.status-active {
-  background-color: #ecfdf3;
-  color: #166534;
-}
-
-.status-active .status-dot {
-  background-color: #16a34a;
-}
-
-.status-clientHold {
-  background-color: #fffbeb;
-  color: #92400e;
-}
-
-.status-clientHold .status-dot {
-  background-color: #eab308;
-}
-
-.status-pendingTransfer {
-  background-color: #eff6ff;
-  color: #1d4ed8;
-}
-
-.status-pendingTransfer .status-dot {
-  background-color: #3b82f6;
-}
-
 .nameservers {
   list-style: none;
   padding: 0;

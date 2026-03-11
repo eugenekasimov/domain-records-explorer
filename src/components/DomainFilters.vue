@@ -35,6 +35,12 @@ const onStatusChange = (event: Event) => {
   const value = (event.target as HTMLSelectElement).value as DomainStatus | ''
   emit('update:status', value)
 }
+
+const onResetClick = () => {
+  emit('update:domain', '')
+  emit('update:registrar', '')
+  emit('update:status', '')
+}
 </script>
 
 <template>
@@ -77,6 +83,12 @@ const onStatusChange = (event: Event) => {
         <option value="pendingTransfer">Pending transfer</option>
       </select>
     </label>
+
+    <div class="actions">
+      <button type="button" class="reset-button" @click="onResetClick">
+        Reset filters
+      </button>
+    </div>
   </form>
 </template>
 
@@ -125,6 +137,33 @@ const onStatusChange = (event: Event) => {
 
 .select {
   padding-right: 2rem;
+}
+
+.actions {
+  margin-top: 0.25rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.reset-button {
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.8rem;
+  font-family: inherit;
+  background: #ffffff;
+  color: #111827;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.reset-button:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
 }
 </style>
 

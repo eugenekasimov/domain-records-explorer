@@ -1,13 +1,25 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useDomainRecords } from "./composables/useDomainRecords";
 import type { DomainRecord, DomainStatus } from "./types/domain";
 import DomainFilters from "./components/DomainFilters.vue";
 import DomainTable from "./components/DomainTable.vue";
 import DomainDetails from "./components/DomainDetails.vue";
 
-const { filters, domains, isLoading, error, reload, page, pageSize, total } =
-  useDomainRecords();
+const {
+  filters,
+  domains,
+  isLoading,
+  error,
+  reload,
+  page,
+  pageSize,
+  total,
+  setPage,
+  goToPreviousPage,
+  goToNextPage,
+  resetFilters,
+} = useDomainRecords();
 
 const selectedDomain = ref<DomainRecord | null>(null);
 
@@ -31,33 +43,35 @@ const handleStatusFilterChange = (status: DomainStatus | "") => {
   filters.value = { ...filters.value, status };
 };
 
-const handleReloadClick = () => {
-  // Reset filters to default (no filtering) and clear selection, then refetch
-  filters.value = {};
-  selectedDomain.value = null;
-  page.value = 1;
-  void reload();
-};
-
 const goToPage = (targetPage: number) => {
   if (targetPage < 1 || targetPage > totalPages.value) return;
-  page.value = targetPage;
-  void reload();
+  setPage(targetPage);
 };
 
 const goPrevPage = () => {
-  if (page.value > 1) {
-    page.value -= 1;
-    void reload();
-  }
+  goToPreviousPage();
 };
 
 const goNextPage = () => {
-  if (page.value < totalPages.value) {
-    page.value += 1;
-    void reload();
-  }
+  goToNextPage();
 };
+
+onMounted(() => {
+  void reload();
+});
+
+watch(
+  () => [domains.value, selectedDomain.value] as const,
+  ([currentDomains, currentSelected]) => {
+    if (
+      currentSelected &&
+      !currentDomains.some((d) => d.domain === currentSelected.domain)
+    ) {
+      clearSelection();
+    }
+  },
+  { deep: false },
+);
 </script>
 
 <template>
@@ -69,9 +83,6 @@ const goNextPage = () => {
           Search, filter, and inspect domain records for support investigations.
         </p>
       </div>
-      <button type="button" class="reload-button" @click="handleReloadClick">
-        Reload data
-      </button>
     </header>
 
     <main class="app-main">
@@ -85,6 +96,12 @@ const goNextPage = () => {
             v-model:registrar="filters.registrar"
             :status="filters.status ?? ''"
             @update:status="handleStatusFilterChange"
+            @reset="
+              () => {
+                clearSelection();
+                resetFilters();
+              }
+            "
           />
         </div>
       </section>

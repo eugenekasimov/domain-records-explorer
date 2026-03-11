@@ -1,4 +1,4 @@
-import { ref, watch, onMounted } from "vue";
+import { ref, watch } from "vue";
 import type { DomainRecord } from "../types/domain";
 import { fetchDomains, type DomainFilterParams } from "../api/domainApi";
 
@@ -32,8 +32,6 @@ export function useDomainRecords(initialFilters: DomainFilterParams = {}) {
     }
   };
 
-  onMounted(load);
-
   watch(
     filters,
     () => {
@@ -42,6 +40,30 @@ export function useDomainRecords(initialFilters: DomainFilterParams = {}) {
     },
     { deep: true },
   );
+
+  const setPage = (targetPage: number) => {
+    if (targetPage < 1) return;
+    page.value = targetPage;
+    void load();
+  };
+
+  const goToPreviousPage = () => {
+    if (page.value <= 1) return;
+    page.value -= 1;
+    void load();
+  };
+
+  const goToNextPage = () => {
+    if (page.value * pageSize.value >= total.value) return;
+    page.value += 1;
+    void load();
+  };
+
+  const resetFilters = () => {
+    filters.value = {};
+    page.value = 1;
+    void load();
+  };
 
   return {
     filters,
@@ -52,5 +74,9 @@ export function useDomainRecords(initialFilters: DomainFilterParams = {}) {
     pageSize,
     total,
     reload: load,
+    setPage,
+    goToPreviousPage,
+    goToNextPage,
+    resetFilters,
   };
 }
