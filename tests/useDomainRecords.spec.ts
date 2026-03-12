@@ -132,6 +132,38 @@ describe('useDomainRecords', () => {
     )
   })
 
+  it('stale response is discarded when a newer request supersedes it', async () => {
+    let resolveFirst!: (v: { data: never[]; total: number }) => void
+    let resolveSecond!: (v: { data: never[]; total: number }) => void
+
+    const firstPage = { data: [], total: 10 }
+    const secondPage = { data: [], total: 99 }
+
+    mockFetch
+      .mockReturnValueOnce(new Promise((r) => { resolveFirst = r }))
+      .mockReturnValueOnce(new Promise((r) => { resolveSecond = r }))
+
+    const composable = useDomainRecords()
+
+    // Fire two loads without waiting for the first to finish
+    void composable.reload()
+    void composable.reload()
+
+    // Resolve the first (stale) request after the second has been registered
+    resolveFirst(firstPage)
+    await flushPromises()
+
+    // Stale result must not overwrite state
+    expect(composable.total.value).not.toBe(10)
+
+    // Now resolve the second (current) request
+    resolveSecond(secondPage)
+    await flushPromises()
+
+    expect(composable.total.value).toBe(99)
+    expect(composable.isLoading.value).toBe(false)
+  })
+
   it('goToPreviousPage decrements page and loads', async () => {
     mockFetch.mockResolvedValue({ data: [], total: 25 })
 

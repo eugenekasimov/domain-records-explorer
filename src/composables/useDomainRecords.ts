@@ -11,7 +11,12 @@ export function useDomainRecords(initialFilters: DomainFilterParams = {}) {
   const pageSize = ref(10);
   const total = ref(0);
 
+  // Incremented on every load call. Stale responses (from superseded requests)
+  // compare their captured ID against this and discard if they no longer match.
+  let latestRequestId = 0;
+
   const load = async () => {
+    const requestId = ++latestRequestId;
     isLoading.value = true;
     error.value = null;
     try {
@@ -20,15 +25,19 @@ export function useDomainRecords(initialFilters: DomainFilterParams = {}) {
         page: page.value,
         pageSize: pageSize.value,
       });
+      if (requestId !== latestRequestId) return;
       domains.value = response.data;
       total.value = response.total;
     } catch (e) {
+      if (requestId !== latestRequestId) return;
       // TODO: send error details to a real observability system instead of relying on UI-only messaging
       error.value = "Failed to load domain records.";
       domains.value = [];
       total.value = 0;
     } finally {
-      isLoading.value = false;
+      if (requestId === latestRequestId) {
+        isLoading.value = false;
+      }
     }
   };
 
