@@ -180,4 +180,3 @@ The current frontend’s `fetchDomains` mock function is intentionally shaped so
 - **URL state**: Persist filters and selection to query parameters so that views can be shared and reloaded consistently.
 - **Accessibility**: Further refine focus handling and keyboard interactions for the table and details panel.
 - **Diagnostics**: Surface metadata such as registrar IDs, contact handles, or additional operational flags as needed by support workflows.
-- **Additional tests**: Add higher-level component/integration tests (e.g. for `App.vue`) and a small E2E smoke test to validate the full happy path.
