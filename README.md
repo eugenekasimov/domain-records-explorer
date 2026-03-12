@@ -14,7 +14,6 @@ npm install
 ```
 
 - **Run the dev server**:
-
   - **Prepare local env file**: copy the shared defaults into a local-only file so you can safely tweak failure modes:
 
     ```bash
@@ -130,7 +129,7 @@ For a production system with a large dataset, the frontend would ideally consume
   ],
   "pagination": {
     "page": 1,
-    "pageSize": 25,
+    "pageSize": 10,
     "total": 123,
     "totalPages": 5
   }
@@ -182,4 +181,3 @@ The current frontend’s `fetchDomains` mock function is intentionally shaped so
 - **Accessibility**: Further refine focus handling and keyboard interactions for the table and details panel.
 - **Diagnostics**: Surface metadata such as registrar IDs, contact handles, or additional operational flags as needed by support workflows.
 - **Additional tests**: Add higher-level component/integration tests (e.g. for `App.vue`) and a small E2E smoke test to validate the full happy path.
-
